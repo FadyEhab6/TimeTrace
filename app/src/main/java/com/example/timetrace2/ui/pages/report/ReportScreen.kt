@@ -31,35 +31,26 @@ import com.example.timetrace2.ui.theme.TimeTrace2Theme
 
 @Composable
 fun ReportScreen(modifier: Modifier = Modifier) {
-    var selectedTab by remember { mutableStateOf(NavTab.Report) }
-
-    Scaffold(
-        modifier = modifier,
-        containerColor = ScreenBackground,
-        bottomBar = { BottomNavBar(selected = selectedTab, onSelect = { selectedTab = it }) },
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .statusBarsPadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "OYT",
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                textAlign = TextAlign.Center,
-                fontSize = 38.sp,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 2.sp,
-            )
-            HoursCard(SampleData.weekBar)
-            TopZonesCard(SampleData.zones)
-            WeeklyRhythmCard(SampleData.week)
-            Spacer(Modifier.height(8.dp))
-        }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "TimeTrace",
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            textAlign = TextAlign.Center,
+            fontSize = 38.sp,
+            fontWeight = FontWeight.Black,
+            letterSpacing = 2.sp,
+        )
+        HoursCard(SampleData.weekBar)
+        TopZonesCard(SampleData.zones)
+        WeeklyRhythmCard(SampleData.week)
+        Spacer(Modifier.height(8.dp))
     }
 }
 

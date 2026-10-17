@@ -12,25 +12,12 @@ import com.example.timetrace2.ui.theme.TimeTrace2Theme
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
         setContent {
-            TimeTrace2Theme {
-                var showSplash by remember { mutableStateOf(true) }
-
-                LaunchedEffect(Unit) {
-                    delay(2000)
-                    showSplash = false
-                }
-
-                if (showSplash) {
-                    SplashScreen()
-                } else {
-                    TimerScreen()
-                }
+            TimeTrace2Theme(darkTheme = false, dynamicColor = false) {
+                ReportScreen()
             }
         }
     }
