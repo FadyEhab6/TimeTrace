@@ -1,0 +1,41 @@
+# IntelliJ / Android Studio
+*.iml
+.idea/
+!.idea/codeStyles/
+!.idea/codeStyles/**
+!.idea/inspectionProfiles/
+!.idea/inspectionProfiles/**
+
+# Gradle
+.gradle/
+
+# Local configuration
+local.properties
+
+# Build outputs
+**/build/
+build/
+
+# Native build
+.externalNativeBuild/
+.cxx/
+
+# Captures
+captures/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Kotlin
+*.kotlin_module
+
+# Signing keys
+*.jks
+*.keystore
+
+# Firebase (if used)
+google-services.json
