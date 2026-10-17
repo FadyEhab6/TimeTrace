@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.timetrace2.ui.report.ReportScreen
+import com.example.timetrace2.ui.navigation.MainScreen
 import com.example.timetrace2.ui.theme.TimeTrace2Theme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TimeTrace2Theme(darkTheme = false, dynamicColor = false) {
-                ReportScreen()
+                MainScreen()
             }
         }
     }
