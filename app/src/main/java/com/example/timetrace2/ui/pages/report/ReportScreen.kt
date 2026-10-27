@@ -3,15 +3,11 @@ package com.example.timetrace2.ui.report
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,20 +45,6 @@ import com.example.timetrace2.ui.theme.*
 
 
 
-private data class ReportCategory(
-    val name: String,
-    val percent: String,
-    val duration: String,
-    val color: Color,
-)
-
-private val ReportCategories = listOf(
-    ReportCategory("Study", "50%", "2h 15m", StudyBlue),
-    ReportCategory("Work", "30%", "1h 20m", WorkOrange),
-    ReportCategory("Health", "15%", "40m", HealthGreen),
-    ReportCategory("Leisure", "5%", "15m", LeisurePurple),
-)
-
 private val DefaultReportDateMillis = java.time.LocalDate.of(2025, 4, 26)
     .atStartOfDay(java.time.ZoneOffset.UTC)
     .toInstant()
@@ -70,8 +52,10 @@ private val DefaultReportDateMillis = java.time.LocalDate.of(2025, 4, 26)
 
 @Composable
 fun ReportScreen(modifier: Modifier = Modifier) {
+    var selectedPeriod by rememberSaveable { mutableStateOf(ReportPeriod.Daily) }
     var selectedDateMillis by rememberSaveable { mutableStateOf(DefaultReportDateMillis) }
     var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
+    val reportData = ReportDataProvider.forPeriod(selectedPeriod)
 
     Column(
         modifier = modifier
@@ -88,7 +72,10 @@ fun ReportScreen(modifier: Modifier = Modifier) {
             fontSize = Typography.headlineMedium.fontSize,
             fontWeight = FontWeight.Bold,
         )
-        PeriodSelector()
+        PeriodSelector(
+            selectedPeriod = selectedPeriod,
+            onPeriodSelected = { selectedPeriod = it },
+        )
         DateSelector(
             selectedDate = ReportDateFormatter.format(selectedDateMillis),
             onClick = { isDatePickerVisible = true },
@@ -101,12 +88,12 @@ fun ReportScreen(modifier: Modifier = Modifier) {
             fontSize = 14.sp,
         )
         Text(
-            text = "4h 30m",
+            text = reportData.totalTime,
             color = ReportNavy,
             fontSize = Typography.displaySmall.fontSize,
             fontWeight = FontWeight.Bold,
         )
-        TotalTimeBreakdown()
+        TotalTimeBreakdown(reportData)
         Text(
             text = "Time by category",
             modifier = Modifier.padding(top = 12.dp, bottom = 12.dp),
@@ -114,7 +101,7 @@ fun ReportScreen(modifier: Modifier = Modifier) {
             fontSize = Typography.bodyMedium.fontSize,
             fontWeight = FontWeight.Bold,
         )
-        CategoryBreakdown()
+        CategoryBreakdown(reportData.categories)
     }
 
     if (isDatePickerVisible) {
@@ -127,26 +114,28 @@ fun ReportScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun PeriodSelector() {
-    val periods = listOf("Daily", "Weekly", "Monthly", "Custom")
+private fun PeriodSelector(
+    selectedPeriod: ReportPeriod,
+    onPeriodSelected: (ReportPeriod) -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .border(1.dp, DividerGray, RoundedCornerShape(8.dp)),
     ) {
-        periods.forEachIndexed { index, period ->
+        ReportPeriod.entries.forEach { period ->
             Text(
-                text = period,
+                text = period.label,
                 modifier = Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(if (index == 0) StudyBlue else Color.Transparent)
-                    .clickable { }
+                    .background(if (period == selectedPeriod) StudyBlue else Color.Transparent)
+                    .clickable { onPeriodSelected(period) }
                     .padding(vertical = 5.dp),
-                color = if (index == 0) Color.White else ReportBlue,
+                color = if (period == selectedPeriod) Color.White else ReportBlue,
                 fontSize = Typography.labelLarge.fontSize,
-                fontWeight = if (index == 0) FontWeight.SemiBold else FontWeight.Normal,
+                fontWeight = if (period == selectedPeriod) FontWeight.SemiBold else FontWeight.Normal,
                 textAlign = TextAlign.Center,
             )
         }
@@ -192,7 +181,7 @@ private fun DateSelector(
 }
 
 @Composable
-private fun TotalTimeBreakdown() {
+private fun TotalTimeBreakdown(reportData: ReportData) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -202,7 +191,7 @@ private fun TotalTimeBreakdown() {
         Box(
             modifier = Modifier.padding(20.dp)
         ) {
-            DonutChart()
+            DonutChart(reportData)
         }
         Column(
             modifier = Modifier
@@ -210,7 +199,7 @@ private fun TotalTimeBreakdown() {
                 .padding(start = 16.dp),
             verticalArrangement = Arrangement.spacedBy(9.dp),
         ) {
-            ReportCategories.forEach { category ->
+            reportData.categories.forEach { category ->
                 LegendRow(category)
             }
         }
@@ -218,7 +207,7 @@ private fun TotalTimeBreakdown() {
 }
 
 @Composable
-private fun DonutChart() {
+private fun DonutChart(reportData: ReportData) {
     Box(
         modifier = Modifier.size(112.dp),
         contentAlignment = Alignment.Center,
@@ -226,8 +215,8 @@ private fun DonutChart() {
         Canvas(Modifier.fillMaxSize()) {
             val strokeWidth = 17.dp.toPx()
             var startAngle = -90f
-            ReportCategories.forEach { category ->
-                val sweep = category.percent.removeSuffix("%").toFloat() * 3.6f
+            reportData.categories.forEach { category ->
+                val sweep = category.percent * 3.6f
                 drawArc(
                     color = category.color,
                     startAngle = startAngle,
@@ -243,7 +232,7 @@ private fun DonutChart() {
             )
         }
         Text(
-            text = "4h 30m",
+            text = reportData.totalTime,
             color = ReportNavy,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
@@ -278,7 +267,7 @@ private fun LegendRow(category: ReportCategory) {
             )
         }
         Text(
-            text = category.percent,
+            text = "${category.percent}%",
             modifier = Modifier.width(50.dp),
             color = TextMuted,
             fontSize = 11.sp,
@@ -298,12 +287,12 @@ private fun LegendRow(category: ReportCategory) {
 
 
 @Composable
-private fun CategoryBreakdown() {
+private fun CategoryBreakdown(categories: List<ReportCategory>) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(15.dp),
     ) {
-        ReportCategories.forEach { category ->
+        categories.forEach { category ->
             Column(
                 modifier = Modifier.fillMaxWidth(),
 //                verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -338,13 +327,7 @@ private fun CategoryBreakdown() {
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
-                                .fillMaxWidth(
-                                    (
-                                            category.percent
-                                                .removeSuffix("%")
-                                                .toFloatOrNull() ?: 0f
-                                            ).coerceIn(0f, 100f) / 100f
-                                )
+                                .fillMaxWidth(category.percent.coerceIn(0, 100) / 100f)
                                 .clip(RoundedCornerShape(50))
                                 .background(category.color),
                         )
