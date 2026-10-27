@@ -85,27 +85,31 @@ fun ReportScreen(modifier: Modifier = Modifier) {
             onClick = { isDatePickerVisible = true },
         )
 
-        Text(
-            text = "Total time",
-            modifier = Modifier.padding(top = 10.dp),
-            color = ReportBlue,
-            fontSize = 14.sp,
-        )
-        Text(
-            text = reportData.totalTime,
-            color = ReportNavy,
-            fontSize = Typography.displaySmall.fontSize,
-            fontWeight = FontWeight.Bold,
-        )
-        TotalTimeBreakdown(reportData)
-        Text(
-            text = "Time by category",
-            modifier = Modifier.padding(top = 12.dp, bottom = 12.dp),
-            color = ReportNavy,
-            fontSize = Typography.bodyMedium.fontSize,
-            fontWeight = FontWeight.Bold,
-        )
-        CategoryBreakdown(reportData.categories)
+        if (reportData.hasData) {
+            Text(
+                text = "Total time",
+                modifier = Modifier.padding(top = 10.dp),
+                color = ReportBlue,
+                fontSize = 14.sp,
+            )
+            Text(
+                text = reportData.totalTime,
+                color = ReportNavy,
+                fontSize = Typography.displaySmall.fontSize,
+                fontWeight = FontWeight.Bold,
+            )
+            TotalTimeBreakdown(reportData)
+            Text(
+                text = "Time by category",
+                modifier = Modifier.padding(top = 12.dp, bottom = 12.dp),
+                color = ReportNavy,
+                fontSize = Typography.bodyMedium.fontSize,
+                fontWeight = FontWeight.Bold,
+            )
+            CategoryBreakdown(reportData.categories)
+        } else {
+            NoReportDataMessage()
+        }
     }
 
     if (isDatePickerVisible) {
@@ -113,6 +117,23 @@ fun ReportScreen(modifier: Modifier = Modifier) {
             initialDateMillis = selectedDateMillis,
             onDateSelected = reportViewModel::selectDate,
             onDismiss = { isDatePickerVisible = false },
+        )
+    }
+}
+
+@Composable
+private fun NoReportDataMessage() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 64.dp, bottom = 64.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = "No Data to show",
+            color = TextMuted,
+            fontSize = Typography.titleMedium.fontSize,
+            fontWeight = FontWeight.Medium,
         )
     }
 }
