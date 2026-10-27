@@ -29,6 +29,10 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,8 +63,16 @@ private val ReportCategories = listOf(
     ReportCategory("Leisure", "5%", "15m", LeisurePurple),
 )
 
+private val DefaultReportDateMillis = java.time.LocalDate.of(2025, 4, 26)
+    .atStartOfDay(java.time.ZoneOffset.UTC)
+    .toInstant()
+    .toEpochMilli()
+
 @Composable
 fun ReportScreen(modifier: Modifier = Modifier) {
+    var selectedDateMillis by rememberSaveable { mutableStateOf(DefaultReportDateMillis) }
+    var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -77,7 +89,10 @@ fun ReportScreen(modifier: Modifier = Modifier) {
             fontWeight = FontWeight.Bold,
         )
         PeriodSelector()
-        DateSelector()
+        DateSelector(
+            selectedDate = ReportDateFormatter.format(selectedDateMillis),
+            onClick = { isDatePickerVisible = true },
+        )
 
         Text(
             text = "Total time",
@@ -100,6 +115,14 @@ fun ReportScreen(modifier: Modifier = Modifier) {
             fontWeight = FontWeight.Bold,
         )
         CategoryBreakdown()
+    }
+
+    if (isDatePickerVisible) {
+        ReportDatePickerDialog(
+            initialDateMillis = selectedDateMillis,
+            onDateSelected = { selectedDateMillis = it },
+            onDismiss = { isDatePickerVisible = false },
+        )
     }
 }
 
@@ -131,14 +154,17 @@ private fun PeriodSelector() {
 }
 
 @Composable
-private fun DateSelector() {
+private fun DateSelector(
+    selectedDate: String,
+    onClick: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp)
             .clip(RoundedCornerShape(8.dp))
             .border(1.dp, DividerGray, RoundedCornerShape(8.dp))
-            .clickable { }
+            .clickable(onClick = onClick)
             .padding(horizontal = 9.dp, vertical = 7.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -149,7 +175,7 @@ private fun DateSelector() {
             modifier = Modifier.size(15.dp),
         )
         Text(
-            text = "Apr 26, 2025",
+            text = selectedDate,
             modifier = Modifier.weight(1f),
             color = ReportNavy,
             fontSize = Typography.titleSmall.fontSize,
