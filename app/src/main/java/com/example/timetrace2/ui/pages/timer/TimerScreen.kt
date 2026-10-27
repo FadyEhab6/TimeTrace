@@ -6,9 +6,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.timetrace2.ui.theme.StudyBlue
+import com.example.timetrace2.ui.theme.Typography
 import kotlinx.coroutines.delay
 
+@Preview
 @Composable
 fun TimerScreen() {
     var seconds by remember { mutableIntStateOf(0) }
@@ -31,7 +36,7 @@ fun TimerScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Study Timer", style = MaterialTheme.typography.headlineMedium)
+        Text("Study Timer", style = Typography.headlineMedium)
 
         Spacer(Modifier.height(12.dp))
 
@@ -39,11 +44,14 @@ fun TimerScreen() {
 
         Spacer(Modifier.height(40.dp))
 
-        Text(time, style = MaterialTheme.typography.displayMedium)
+        Text(time, style = Typography.displayMedium)
 
         Spacer(Modifier.height(30.dp))
 
-        Button(onClick = { running = !running }) {
+        Button(onClick = { running = !running }, colors = ButtonDefaults.buttonColors(
+            containerColor = StudyBlue,
+            contentColor = Color.White
+        )) {
             Text(if (running) "Pause" else "Start / Resume")
         }
 
@@ -51,7 +59,7 @@ fun TimerScreen() {
             running = false
             seconds = 0
         }) {
-            Text("Stop")
+            Text("Stop", color = StudyBlue)
         }
     }
 }

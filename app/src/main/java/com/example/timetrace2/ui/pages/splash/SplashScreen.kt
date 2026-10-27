@@ -6,8 +6,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.timetrace2.ui.theme.Typography
 
+@Preview
 @Composable
 fun SplashScreen() {
     Column(
@@ -15,11 +18,11 @@ fun SplashScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("◷", style = MaterialTheme.typography.displayLarge)
+        Text("◷", style = Typography.displayLarge)
 
         Spacer(Modifier.height(16.dp))
 
-        Text("TimeTrace", style = MaterialTheme.typography.headlineLarge)
+        Text("TimeTrace", style = Typography.headlineLarge)
 
         Spacer(Modifier.height(8.dp))
 
