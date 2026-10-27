@@ -19,4 +19,7 @@ internal data class ReportCategory(
 internal data class ReportData(
     val totalTime: String = "0m",
     val categories: List<ReportCategory> = emptyList(),
-)
+) {
+    val hasData: Boolean
+        get() = categories.isNotEmpty()
+}
