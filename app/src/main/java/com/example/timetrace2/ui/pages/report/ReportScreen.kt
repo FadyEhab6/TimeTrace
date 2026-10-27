@@ -225,16 +225,17 @@ private fun DonutChart() {
     }
 }
 
+
 @Composable
 private fun LegendRow(category: ReportCategory) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        // Category column: takes the remaining space
         Row(
             modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier = Modifier
@@ -242,6 +243,7 @@ private fun LegendRow(category: ReportCategory) {
                     .clip(RoundedCornerShape(50))
                     .background(category.color)
             )
+
             Text(
                 text = category.name,
                 modifier = Modifier.padding(start = 8.dp),
@@ -251,16 +253,22 @@ private fun LegendRow(category: ReportCategory) {
         }
         Text(
             text = category.percent,
+            modifier = Modifier.width(50.dp),
             color = TextMuted,
-            fontSize = 9.sp,
+            fontSize = 11.sp,
+            textAlign = TextAlign.Center,
         )
         Text(
             text = category.duration,
+            modifier = Modifier.width(60.dp),
             color = TextMuted,
-            fontSize = 9.sp,
+            fontSize = 11.sp,
+            textAlign = TextAlign.Center,
         )
     }
 }
+
+
 
 
 @Composable
