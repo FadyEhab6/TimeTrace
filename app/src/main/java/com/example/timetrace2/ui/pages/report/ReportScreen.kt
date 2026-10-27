@@ -1,4 +1,4 @@
-package com.example.timetrace2.ui.report
+package com.example.timetrace2.ui.pages.report
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -25,10 +25,12 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,21 +43,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.timetrace2.ui.report.ReportCategory
+import com.example.timetrace2.ui.report.ReportData
+import com.example.timetrace2.ui.report.ReportDateFormatter
+import com.example.timetrace2.ui.report.ReportDatePickerDialog
+import com.example.timetrace2.ui.report.ReportPeriod
+import com.example.timetrace2.ui.report.ReportViewModel
 import com.example.timetrace2.ui.theme.*
 
 
 
-private val DefaultReportDateMillis = java.time.LocalDate.of(2025, 4, 26)
-    .atStartOfDay(java.time.ZoneOffset.UTC)
-    .toInstant()
-    .toEpochMilli()
-
 @Composable
 fun ReportScreen(modifier: Modifier = Modifier) {
-    var selectedPeriod by rememberSaveable { mutableStateOf(ReportPeriod.Daily) }
-    var selectedDateMillis by rememberSaveable { mutableStateOf(DefaultReportDateMillis) }
+    val reportViewModel: ReportViewModel = viewModel()
+    val selectedPeriod by reportViewModel.selectedPeriod.collectAsState()
+    val selectedDateMillis by reportViewModel.selectedDateMillis.collectAsState()
+    val reportData by reportViewModel.report.collectAsState()
     var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
-    val reportData = ReportDataProvider.forPeriod(selectedPeriod)
 
     Column(
         modifier = modifier
@@ -74,7 +78,7 @@ fun ReportScreen(modifier: Modifier = Modifier) {
         )
         PeriodSelector(
             selectedPeriod = selectedPeriod,
-            onPeriodSelected = { selectedPeriod = it },
+            onPeriodSelected = reportViewModel::selectPeriod,
         )
         DateSelector(
             selectedDate = ReportDateFormatter.format(selectedDateMillis),
@@ -107,7 +111,7 @@ fun ReportScreen(modifier: Modifier = Modifier) {
     if (isDatePickerVisible) {
         ReportDatePickerDialog(
             initialDateMillis = selectedDateMillis,
-            onDateSelected = { selectedDateMillis = it },
+            onDateSelected = reportViewModel::selectDate,
             onDismiss = { isDatePickerVisible = false },
         )
     }
