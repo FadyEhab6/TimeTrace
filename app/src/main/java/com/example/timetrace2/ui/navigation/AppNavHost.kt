@@ -9,7 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.timetrace2.ui.components.NavTab
 import com.example.timetrace2.ui.components.PlaceholderScreen
-import com.example.timetrace2.ui.report.ReportScreen
+import com.example.timetrace2.ui.pages.report.ReportScreen
 
 /**
  * Maps each tab to the screen that should be shown for it.
