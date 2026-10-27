@@ -11,7 +11,7 @@ import androidx.room.RoomDatabase
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun categoryDao(): CategoryDao
+    abstract fun reportDao(): ReportDao
 
     companion object {
         @Volatile
@@ -23,7 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "timetrace.db",
-                ).fallbackToDestructiveMigration().build().also { instance = it }
+                ).build().also { instance = it }
             }
     }
 }

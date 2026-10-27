@@ -9,9 +9,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.timetrace2.ui.components.NavTab
 import com.example.timetrace2.ui.components.PlaceholderScreen
-import com.example.timetrace2.ui.pages.category.CategoriesScreen
-import com.example.timetrace2.ui.report.ReportScreen
+import com.example.timetrace2.ui.pages.report.ReportScreen
 
+/**
+ * Maps each tab to the screen that should be shown for it.
+ * Each tab's name ("Today", "Report", ...) is used as its route.
+ */
 @Composable
 fun AppNavHost(
     navController: NavHostController,
@@ -19,16 +22,17 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavTab.Categories.name, // Starts directly on Categories!
+        startDestination = NavTab.Report.name,
         modifier = modifier,
+        //no transition animation between switching pages
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None },
         popEnterTransition = { EnterTransition.None },
         popExitTransition = { ExitTransition.None }
     ) {
-        composable(NavTab.Today.name) { PlaceholderScreen("Today") }
+        composable(NavTab.Today.name) { PlaceholderScreen("Today") }   // TODO: replace with TodayScreen()
         composable(NavTab.Report.name) { ReportScreen() }
-        composable(NavTab.Categories.name) { CategoriesScreen() }
-        composable(NavTab.Profile.name) { PlaceholderScreen("Profile") }
+        composable(NavTab.Zones.name) { PlaceholderScreen("Zones") }   // TODO: replace with ZonesScreen()
+        composable(NavTab.Profile.name) { PlaceholderScreen("Profile") } // TODO: replace with ProfileScreen()
     }
 }
