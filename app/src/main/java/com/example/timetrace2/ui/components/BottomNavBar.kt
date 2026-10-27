@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.timetrace2.ui.theme.NavSelectedBackground
+import com.example.timetrace2.ui.theme.StudyBlue
 
 /** The tabs of the app. An enum gives you a safe, named list instead of "magic" index numbers. */
 enum class NavTab(
@@ -79,12 +80,12 @@ private fun NavItem(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(24.dp))
-            .background(if (isSelected) NavSelectedBackground else Color.Transparent)
+            .background(Color.Transparent)
             .clickable(onClick = onClick)
             .padding(vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(tab.icon, contentDescription = tab.label, tint = Color.Black, modifier = Modifier.size(28.dp))
+        Icon(tab.icon, contentDescription = tab.label, tint = if(isSelected) StudyBlue else Color.LightGray, modifier = Modifier.size(28.dp))
         Spacer(Modifier.height(4.dp))
         Text(tab.label, fontSize = 13.sp, fontWeight = FontWeight.Medium)
     }
