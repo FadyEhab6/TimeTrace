@@ -39,6 +39,12 @@ interface ReportDao {
     @Query("SELECT id FROM user ORDER BY id LIMIT 1")
     suspend fun firstUserId(): Int
 
+    @Query("SELECT id FROM category WHERE userId = :userId ORDER BY id")
+    suspend fun categoryIds(userId: Int): List<Int>
+
+    @Query("SELECT COUNT(*) FROM time_entry")
+    suspend fun countTimeEntries(): Int
+
     @Insert
     suspend fun insertUser(user: UserEntity): Long
 
