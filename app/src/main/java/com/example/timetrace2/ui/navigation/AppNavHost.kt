@@ -16,6 +16,8 @@ import com.example.timetrace2.ui.report.ReportScreen
 import com.example.timetrace2.ui.pages.profile.ProfileSettingsScreen
 import com.example.timetrace2.ui.pages.home.HomeScreen
 import com.example.timetrace2.ui.pages.report.ReportScreen
+import com.example.timetrace2.ui.pages.timeline.TimelineScreen
+
 
 /**
  * Maps each tab to the screen that should be shown for it.
@@ -51,5 +53,8 @@ fun AppNavHost(
         composable(NavTab.Report.name) { ReportScreen() }
         composable(NavTab.Zones.name) { PlaceholderScreen("Zones") }   // TODO: replace with ZonesScreen()
         composable(NavTab.Profile.name) { ProfileSettingsScreen() } // TODO: replace with ProfileScreen()
+        composable("timeline") {
+            TimelineScreen()
+        }
     }
 }
