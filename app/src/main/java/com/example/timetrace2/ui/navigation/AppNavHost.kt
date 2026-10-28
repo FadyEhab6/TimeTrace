@@ -13,6 +13,7 @@ import com.example.timetrace2.ui.pages.timer.TimerScreen
 
 // el navigation — kol tab byftah screen tania
 import com.example.timetrace2.ui.report.ReportScreen
+import com.example.timetrace2.ui.pages.profile.ProfileSettingsScreen
 
 /**
  * Maps each tab to the screen that should be shown for it.
@@ -36,6 +37,6 @@ fun AppNavHost(
         composable(NavTab.Today.name) { TimerScreen() }   // TODO: replace with TodayScreen()
         composable(NavTab.Report.name) { ReportScreen() }
         composable(NavTab.Zones.name) { PlaceholderScreen("Zones") }   // TODO: replace with ZonesScreen()
-        composable(NavTab.Profile.name) { PlaceholderScreen("Profile") } // TODO: replace with ProfileScreen()
+        composable(NavTab.Profile.name) { ProfileSettingsScreen() } // TODO: replace with ProfileScreen()
     }
 }
