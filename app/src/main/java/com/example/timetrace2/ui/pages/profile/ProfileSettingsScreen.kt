@@ -1,6 +1,7 @@
 
 package com.example.timetrace2.ui.pages.profile
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,13 +28,36 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+private const val PREFS_NAME = "timetrace_profile"
+
 @Composable
 fun ProfileSettingsScreen() {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    // Access local preferences for the profile.
+    val prefs = remember {
+        context.getSharedPreferences(
+            PREFS_NAME,
+            Context.MODE_PRIVATE
+        )
+    }
+
+    // Load previously saved details when the screen is created.
+    var name by remember {
+        mutableStateOf(prefs.getString("name", "") ?: "")
+    }
+
+    var email by remember {
+        mutableStateOf(prefs.getString("email", "") ?: "")
+    }
+
+    var savedMessage by remember {
+        mutableStateOf(false)
+    }
 
     Column(
         modifier = Modifier
@@ -47,6 +71,7 @@ fun ProfileSettingsScreen() {
             fontWeight = FontWeight.Bold
         )
 
+        // Profile preview.
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
@@ -97,6 +122,7 @@ fun ProfileSettingsScreen() {
             }
         }
 
+        // Editable profile information.
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -109,7 +135,10 @@ fun ProfileSettingsScreen() {
 
             OutlinedTextField(
                 value = name,
-                onValueChange = { name = it },
+                onValueChange = {
+                    name = it
+                    savedMessage = false
+                },
                 label = { Text("Full name") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -117,20 +146,41 @@ fun ProfileSettingsScreen() {
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    email = it
+                    savedMessage = false
+                },
                 label = { Text("Email address") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
             Button(
-                onClick = { },
+                onClick = {
+                    prefs.edit()
+                        .putString("name", name.trim())
+                        .putString("email", email.trim())
+                        .apply()
+
+                    name = name.trim()
+                    email = email.trim()
+                    savedMessage = true
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Save changes")
             }
+
+            if (savedMessage) {
+                Text(
+                    text = "Profile saved successfully.",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
 
+        // Placeholder for a future settings implementation.
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -141,6 +191,8 @@ fun ProfileSettingsScreen() {
                 fontWeight = FontWeight.SemiBold
             )
 
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = "Your app preferences will appear here.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -149,5 +201,3 @@ fun ProfileSettingsScreen() {
         }
     }
 }
-
-
