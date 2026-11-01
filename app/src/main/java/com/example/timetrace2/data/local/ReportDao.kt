@@ -39,6 +39,9 @@ interface ReportDao {
     @Query("SELECT id FROM user ORDER BY id LIMIT 1")
     suspend fun firstUserId(): Int
 
+    @Query("SELECT id FROM category WHERE userId = :userId ORDER BY id LIMIT 1")
+    suspend fun firstCategoryIdForUser(userId: Int): Int
+
     @Insert
     suspend fun insertUser(user: UserEntity): Long
 
@@ -47,4 +50,15 @@ interface ReportDao {
 
     @Insert
     suspend fun insertTimeEntries(entries: List<TimeEntryEntity>)
+
+    @Query(
+        """
+        SELECT * FROM time_entry
+        WHERE userId = :userId
+          AND source = 'manual_timer'
+          AND startTime >= :startOfDay
+        ORDER BY startTime DESC
+        """,
+    )
+    suspend fun getTodayTimerSessions(userId: Int, startOfDay: Long): List<TimeEntryEntity>
 }
