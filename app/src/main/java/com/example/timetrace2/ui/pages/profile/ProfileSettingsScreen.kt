@@ -2,6 +2,13 @@
 package com.example.timetrace2.ui.pages.profile
 
 import android.content.Context
+import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +25,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +36,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,15 +48,10 @@ private const val PREFS_NAME = "timetrace_profile"
 fun ProfileSettingsScreen() {
     val context = LocalContext.current
 
-    // Access local preferences for the profile.
     val prefs = remember {
-        context.getSharedPreferences(
-            PREFS_NAME,
-            Context.MODE_PRIVATE
-        )
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
-    // Load previously saved details when the screen is created.
     var name by remember {
         mutableStateOf(prefs.getString("name", "") ?: "")
     }
@@ -55,8 +60,51 @@ fun ProfileSettingsScreen() {
         mutableStateOf(prefs.getString("email", "") ?: "")
     }
 
+    var photoUri by remember {
+        mutableStateOf(prefs.getString("photo_uri", null))
+    }
+
     var savedMessage by remember {
         mutableStateOf(false)
+    }
+
+    // Launch the system photo picker.
+    val photoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (_: SecurityException) {
+                // Some picker providers grant temporary access only.
+            } catch (_: IllegalArgumentException) {
+                // Persistable access is not supported by every provider.
+            }
+
+            photoUri = uri.toString()
+
+            prefs.edit()
+                .putString("photo_uri", photoUri)
+                .apply()
+        }
+    }
+
+    // Load the selected image for display.
+    val avatarBitmap = remember(photoUri) {
+        try {
+            photoUri?.let { savedUri ->
+                context.contentResolver
+                    .openInputStream(Uri.parse(savedUri))
+                    ?.use { stream ->
+                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
+                    }
+            }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     Column(
@@ -88,24 +136,45 @@ fun ProfileSettingsScreen() {
             ) {
                 Box(
                     modifier = Modifier
-                        .size(96.dp)
+                        .size(104.dp)
                         .clip(CircleShape)
                         .background(
                             MaterialTheme.colorScheme.secondaryContainer
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = name.trim()
-                            .split(Regex("\\s+"))
-                            .filter { it.isNotBlank() }
-                            .take(2)
-                            .mapNotNull { it.firstOrNull()?.uppercaseChar() }
-                            .joinToString("")
-                            .ifBlank { "TT" },
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
+                    if (avatarBitmap != null) {
+                        Image(
+                            bitmap = avatarBitmap,
+                            contentDescription = "Profile photo",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Text(
+                            text = name.trim()
+                                .split(Regex("\\s+"))
+                                .filter { it.isNotBlank() }
+                                .take(2)
+                                .mapNotNull { it.firstOrNull()?.uppercaseChar() }
+                                .joinToString("")
+                                .ifBlank { "TT" },
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        photoPicker.launch(
+                            PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                            )
+                        )
+                    }
+                ) {
+                    Text("Change profile photo")
                 }
 
                 Text(
@@ -180,7 +249,7 @@ fun ProfileSettingsScreen() {
             }
         }
 
-        // Placeholder for a future settings implementation.
+        // Settings will be implemented in a later commit.
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -201,3 +270,4 @@ fun ProfileSettingsScreen() {
         }
     }
 }
+
