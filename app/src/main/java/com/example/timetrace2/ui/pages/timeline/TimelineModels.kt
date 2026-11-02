@@ -1,18 +1,21 @@
 package com.example.timetrace2.ui.pages.timeline
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
+import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import com.example.timetrace2.ui.theme.*   // your Color.kt (adjust names if they differ)
+import androidx.compose.ui.graphics.toArgb
+import com.example.timetrace2.R
+import com.example.timetrace2.ui.theme.*
 import java.time.Duration
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
-enum class EntryCategory(val label: String, val icon: ImageVector, val color: Color) {
-    STUDY("Study", Icons.Outlined.School, HomeBlue),
-    HEALTH("Health", Icons.Outlined.FavoriteBorder, SuccessGreen),
-    WORK("Work", Icons.Outlined.Work, ShoppingAmber),
-    LEISURE("Leisure", Icons.Outlined.MenuBook, SleepPurple)
+enum class EntryCategory(val label: String, @DrawableRes val iconRes: Int, val color: Color) {
+    STUDY("Study", R.drawable.ic_school, HomeBlue),
+    HEALTH("Health", R.drawable.ic_favorite, SuccessGreen),
+    WORK("Work", R.drawable.ic_work, ShoppingAmber),
+    LEISURE("Leisure", R.drawable.ic_menu_book, SleepPurple);
+
+    val colorInt: Int get() = color.toArgb()
 }
 
 data class TimeEntry(
@@ -20,7 +23,8 @@ data class TimeEntry(
     val title: String,
     val category: EntryCategory,
     val start: LocalTime,
-    val end: LocalTime
+    val end: LocalTime,
+    val source: String = "Manual"
 ) {
     fun durationLabel(): String {
         val m = Duration.between(start, end).toMinutes()
@@ -31,6 +35,14 @@ data class TimeEntry(
             h > 0 -> "${h}h"
             else -> "${r}m"
         }
+    }
+
+    fun shortRange(): String = "${start.format(SHORT)} - ${end.format(SHORT)}"
+    fun longRange(): String = "Today, ${start.format(LONG)} – ${end.format(LONG)}"
+
+    private companion object {
+        val SHORT: DateTimeFormatter = DateTimeFormatter.ofPattern("h:mm")
+        val LONG: DateTimeFormatter = DateTimeFormatter.ofPattern("h:mm a")
     }
 }
 

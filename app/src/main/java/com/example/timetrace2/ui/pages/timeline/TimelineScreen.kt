@@ -1,114 +1,82 @@
 package com.example.timetrace2.ui.pages.timeline
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.*
+import android.app.AlertDialog
+import android.app.Dialog
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidViewBinding
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.timetrace2.ui.theme.*
-import java.time.format.DateTimeFormatter
-import androidx.compose.foundation.lazy.items
+import com.example.timetrace2.databinding.TimelineDetailsBinding
+import com.example.timetrace2.databinding.TimelineScreenBinding
 import androidx.compose.ui.tooling.preview.Preview
-
-private val rangeFormat = DateTimeFormatter.ofPattern("h:mm")
-
+@Preview(showBackground = true)
+@Composable
+fun TimelineScreenPreview() {
+    TimelineScreen()
+}
 @Composable
 fun TimelineScreen(viewModel: TimelineViewModel = viewModel()) {
     val entries by viewModel.entries.collectAsStateWithLifecycle()
-    val showDialog by viewModel.showAddDialog.collectAsStateWithLifecycle()
+    val selected by viewModel.selectedEntry.collectAsStateWithLifecycle()
+    val dialogMode by viewModel.dialog.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(ScreenBackground)
-            .padding(horizontal = 20.dp)
-    ) {
-        // Header
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("Timeline", fontSize = 26.sp, fontWeight = FontWeight.Bold)
-            IconButton(onClick = viewModel::openAddDialog) {
-                Icon(Icons.Default.Add, contentDescription = "Add time entry", tint = HomeBlue)
+    // System back from the details page returns to the list
+    BackHandler(enabled = selected != null) { viewModel.closeDetails() }
+
+    val entry = selected
+    if (entry == null) {
+        val adapter = remember { EntryAdapter { viewModel.openDetails(it.id) } }
+        AndroidViewBinding(TimelineScreenBinding::inflate) {
+            if (timelineList.adapter == null) timelineList.adapter = adapter
+            addButton.setOnClickListener { viewModel.openAddDialog() }
+            adapter.submitList(entries)
+        }
+    } else {
+        AndroidViewBinding(TimelineDetailsBinding::inflate) {
+            detailTitle.text = entry.title
+            detailCategory.text = entry.category.label
+            detailTime.text = entry.longRange()
+            detailDuration.text = entry.durationLabel()
+            detailSource.text = entry.source
+            detailIcon.setImageResource(entry.category.iconRes)
+            detailIcon.setColorFilter(entry.category.colorInt)
+            detailIconBox.background.mutate()
+                .setTint(ColorUtils.setAlphaComponent(entry.category.colorInt, 38))
+
+            backButton.setOnClickListener { viewModel.closeDetails() }
+            editButton.setOnClickListener { viewModel.openEditDialog(entry) }
+            deleteButton.setOnClickListener {
+                AlertDialog.Builder(context)
+                    .setTitle("Delete entry?")
+                    .setMessage("\"${entry.title}\" will be removed.")
+                    .setPositiveButton("Delete") { _, _ -> viewModel.deleteEntry(entry.id) }
+                    .setNegativeButton("Cancel", null)
+                    .show()
             }
         }
+    }
 
-        // Date selector (static "Today" for now)
-        Row(
-            modifier = Modifier.padding(vertical = 8.dp).clickable { /* TODO date picker */ },
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Today", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-            Icon(Icons.Default.ExpandMore, contentDescription = null)
-        }
-
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(entries, key = { it.id }) { entry ->
-                EntryRow(entry)
-                HorizontalDivider(color = DividerGray)
+    // Add / Edit popup (same XML form)
+    DisposableEffect(dialogMode) {
+        var dialog: Dialog? = null
+        when (val mode = dialogMode) {
+            DialogMode.Hidden -> {}
+            else -> {
+                dialog = TimeEntryDialog.create(
+                    context = context,
+                    existing = (mode as? DialogMode.Edit)?.entry,
+                    onSave = viewModel::saveEntry,
+                    onDismiss = viewModel::closeDialog
+                ).also { it.show() }
             }
         }
-    }
-
-    if (showDialog) {
-        AddTimeEntryDialog(
-            onDismiss = viewModel::closeAddDialog,
-            onSave = viewModel::addEntry
-        )
-    }
-}
-
-@Composable
-private fun EntryRow(entry: TimeEntry) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { /* TODO: open entry details */ }
-            .padding(vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(44.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(entry.category.color.copy(alpha = 0.15f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(entry.category.icon, contentDescription = null, tint = entry.category.color)
+        onDispose {
+            dialog?.setOnDismissListener(null)
+            dialog?.dismiss()
         }
-        Spacer(Modifier.width(14.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(entry.title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            Text(
-                "${entry.category.label}  •  ${entry.start.format(rangeFormat)} - ${entry.end.format(rangeFormat)}",
-                color = TextMuted, fontSize = 13.sp
-            )
-        }
-        Text(entry.durationLabel(), fontWeight = FontWeight.SemiBold)
-        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextMuted)
     }
-
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun TimelineScreenPreview() {
-    TimelineScreen()
 }
