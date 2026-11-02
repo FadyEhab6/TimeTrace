@@ -39,6 +39,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -51,6 +52,8 @@ android {
 }
 
 dependencies {
+    implementation("androidx.compose.ui:ui-viewbinding")        // follows your Compose BOM
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
