@@ -12,10 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,11 +31,14 @@ import androidx.compose.ui.unit.sp
 import com.example.timetrace2.ui.theme.NavSelectedBackground
 
 /** The tabs of the app. An enum gives you a safe, named list instead of "magic" index numbers. */
-enum class NavTab(val label: String, val icon: ImageVector) {
-    Today("Today", Icons.Filled.DateRange),
-    Report("Report", Icons.Filled.List),
-    Zones("Zones", Icons.Filled.Place),
-    Profile("Profile", Icons.Filled.Person),
+enum class NavTab(
+    val label: String,
+    val icon: ImageVector,
+) {
+    Today("Home", Icons.Default.Home),
+    Report("Reports", Icons.Default.BarChart), // or your current icon
+    Categories("Categories", Icons.Default.GridView), // <-- Renamed from Zones to Categories
+    Profile("Settings", Icons.Default.Settings),
 }
 
 @Composable
