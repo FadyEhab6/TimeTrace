@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.timetrace2.ui.components.NavTab
 import com.example.timetrace2.ui.components.PlaceholderScreen
+import com.example.timetrace2.ui.pages.home.HomeScreen
 import com.example.timetrace2.ui.pages.report.ReportScreen
 
 /**
@@ -22,7 +23,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavTab.Report.name,
+        startDestination = NavTab.Today.name,
         modifier = modifier,
         //no transition animation between switching pages
         enterTransition = { EnterTransition.None },
@@ -30,7 +31,17 @@ fun AppNavHost(
         popEnterTransition = { EnterTransition.None },
         popExitTransition = { ExitTransition.None }
     ) {
-        composable(NavTab.Today.name) { PlaceholderScreen("Today") }   // TODO: replace with TodayScreen()
+        composable(NavTab.Today.name) {
+            HomeScreen(
+                onProfileClick = { navController.navigate(NavTab.Profile.name) },
+                onActiveTimerClick = { /* TODO: open Timer screen */ },
+                onPauseClick = { /* TODO: pause timer */ },
+                onAddEntryClick = { /* TODO: open Add Time Entry popup */ },
+                onStartTrackingClick = { /* TODO: open Timer screen */ },
+                onViewAllClick = { /* TODO: open Timeline */ },
+                onEntryClick = { entry -> /* TODO: open Entry Details */ },
+            )
+        }
         composable(NavTab.Report.name) { ReportScreen() }
         composable(NavTab.Zones.name) { PlaceholderScreen("Zones") }   // TODO: replace with ZonesScreen()
         composable(NavTab.Profile.name) { PlaceholderScreen("Profile") } // TODO: replace with ProfileScreen()
