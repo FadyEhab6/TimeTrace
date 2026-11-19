@@ -48,7 +48,7 @@ data class CategoryEntity(
             entity = CategoryEntity::class,
             parentColumns = ["id"],
             childColumns = ["categoryId"],
-            onDelete = ForeignKey.RESTRICT,
+            onDelete = ForeignKey.CASCADE,
         ),
     ],
     indices = [Index("userId"), Index("categoryId"), Index("startTime")],

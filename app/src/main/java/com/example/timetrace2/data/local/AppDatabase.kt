@@ -12,6 +12,7 @@ import androidx.room.RoomDatabase
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun reportDao(): ReportDao
+    abstract fun categoryDao(): CategoryDao
 
     companion object {
         @Volatile

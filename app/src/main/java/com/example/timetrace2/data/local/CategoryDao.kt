@@ -37,23 +37,8 @@ interface CategoryDao {
         endTime: Long,
     ): Flow<List<CategoryRow>>
 
-    @Query("SELECT COUNT(*) FROM user")
-    suspend fun countUsers(): Int
-
-    @Query("SELECT id FROM user ORDER BY id LIMIT 1")
-    suspend fun firstUserId(): Int
-
-    @Insert
-    suspend fun insertUser(user: UserEntity): Long
-
-    @Insert
-    suspend fun insertCategories(categories: List<CategoryEntity>): List<Long>
-
     @Insert
     suspend fun insertCategory(category: CategoryEntity): Long
-
-    @Insert
-    suspend fun insertTimeEntries(entries: List<TimeEntryEntity>)
 
     @Query("UPDATE category SET name = :name, color = :color, description = :description WHERE id = :categoryId")
     suspend fun updateCategory(categoryId: Int, name: String, color: String, description: String?)

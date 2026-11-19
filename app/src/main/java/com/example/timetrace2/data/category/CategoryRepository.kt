@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import com.example.timetrace2.data.local.CategoryDao
 import com.example.timetrace2.data.local.CategoryEntity
 import com.example.timetrace2.data.local.PlaceholderDataSeeder
+import com.example.timetrace2.data.local.ReportDao
 import com.example.timetrace2.ui.pages.category.CategoryItemUi
 import com.example.timetrace2.ui.pages.category.CategoryPeriod
 import java.time.DayOfWeek
@@ -16,12 +17,13 @@ import kotlinx.coroutines.flow.map
 
 internal class CategoryRepository(
     private val dao: CategoryDao,
+    private val reportDao: ReportDao, // only used for seeding and the user id
 ) {
     suspend fun seedPlaceholderData() {
-        PlaceholderDataSeeder(dao).seedIfEmpty()
+        PlaceholderDataSeeder(reportDao).seedIfEmpty()
     }
 
-    suspend fun getUserId(): Int = dao.firstUserId()
+    suspend fun getUserId(): Int = reportDao.firstUserId()
 
     fun observeCategories(
         userId: Int,
@@ -38,6 +40,7 @@ internal class CategoryRepository(
                 CategoryItemUi(
                     id = row.id,
                     name = row.name,
+                    description = row.description.orEmpty(),
                     subtitle = row.description?.takeIf { it.isNotBlank() } ?: "No tasks yet",
                     duration = formatDuration(row.durationSeconds),
                     colorHex = row.color,
@@ -53,7 +56,7 @@ internal class CategoryRepository(
                 userId = userId,
                 name = name.trim(),
                 color = colorHex,
-                description = description.trim().ifEmpty { "Custom category" },
+                description = description.trim().ifEmpty { null },
                 isDefault = false,
                 createdAt = System.currentTimeMillis(),
             )
@@ -65,7 +68,7 @@ internal class CategoryRepository(
             categoryId = categoryId,
             name = name.trim(),
             color = colorHex,
-            description = description.trim().ifEmpty { "Custom category" },
+            description = description.trim().ifEmpty { null },
         )
     }
 
@@ -84,7 +87,7 @@ internal class CategoryRepository(
             CategoryPeriod.Today -> startDate.plusDays(1)
             CategoryPeriod.ThisWeek -> startDate.plusWeeks(1)
             CategoryPeriod.ThisMonth -> startDate.plusMonths(1)
-            CategoryPeriod.Custom -> date.plusDays(7)
+            CategoryPeriod.Custom -> date.plusDays(8) // end is exclusive, so +8 includes day +7
         }
         return startDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli() to
                 endDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
@@ -95,7 +98,8 @@ internal class CategoryRepository(
         val hours = totalMinutes / 60
         val minutes = totalMinutes % 60
         return when {
-            hours > 0 -> String.format("%dh %02dm", hours, minutes)
+            hours > 0 && minutes > 0 -> "${hours}h ${minutes}m"
+            hours > 0 -> "${hours}h"
             else -> "${minutes}m"
         }
     }
