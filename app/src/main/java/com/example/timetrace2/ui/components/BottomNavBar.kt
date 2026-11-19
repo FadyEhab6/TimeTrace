@@ -86,6 +86,6 @@ private fun NavItem(
     ) {
         Icon(tab.icon, contentDescription = tab.label, tint = if(isSelected) StudyBlue else Color.LightGray, modifier = Modifier.size(28.dp))
         Spacer(Modifier.height(4.dp))
-        Text(tab.label, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        Text(tab.label, fontSize = 11.sp, fontWeight = FontWeight.Medium)
     }
 }
