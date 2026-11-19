@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,7 +22,10 @@ import com.example.timetrace2.ui.theme.Typography
 
 // el screen el ra2esiya bta3et el timer
 @Composable
-fun TimerScreen(vm: TimerViewModel = viewModel()) {
+fun TimerScreen(
+    vm: TimerViewModel = viewModel(),
+    onBackClick: () -> Unit = {},
+) {
 
     // gib el values mn el viewmodel 3shan el screen yt update lw etghayaret
     val seconds by vm.seconds.collectAsState()
@@ -40,10 +45,28 @@ fun TimerScreen(vm: TimerViewModel = viewModel()) {
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(48.dp))
+        Spacer(Modifier.height(16.dp))
 
-        // 3onwan el screen
-        Text("Study Timer", style = Typography.headlineMedium, fontWeight = FontWeight.Bold)
+        // zrar el rgo3 w 3onwan el screen
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier.align(Alignment.CenterStart),
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                )
+            }
+            Text(
+                text = "Study Timer",
+                style = Typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center),
+            )
+        }
 
         Spacer(Modifier.height(8.dp))
 

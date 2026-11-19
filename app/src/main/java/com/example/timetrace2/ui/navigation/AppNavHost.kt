@@ -80,6 +80,6 @@ fun AppNavHost(
         composable(NavTab.Reports.name) { ReportScreen() }
         composable(NavTab.Categories.name) { CategoriesScreen() }
         composable(NavTab.Profile.name) { ProfileSettingsScreen() }
-        composable(TimerRoute) { TimerScreen() }
+        composable(TimerRoute) { TimerScreen(onBackClick = { navController.popBackStack() }) }
     }
 }
