@@ -12,17 +12,18 @@ enum class CategoryPeriod(val label: String) {
 data class CategoryItemUi(
     val id: Int,
     val name: String,
-    val subtitle: String,
+    val description: String, // raw value, used to prefill the edit dialog
+    val subtitle: String,    // display value with "No tasks yet" fallback
     val duration: String,
     val colorHex: String,
     val color: Color,
 )
 
 val PresetCategoryColors = listOf(
-    "#4A80F0" to Color(0xFF4A80F0), // Blue
-    "#A174ED" to Color(0xFFA174ED), // Purple
-    "#5ABF88" to Color(0xFF5ABF88), // Green
-    "#F0B84A" to Color(0xFFF0B84A), // Yellow/Orange
-    "#E59C52" to Color(0xFFE59C52), // Orange
-    "#EB5757" to Color(0xFFEB5757), // Red/Pink
+    "#4F86F7" to Color(0xFF4F86F7), // Study blue
+    "#FFB66D" to Color(0xFFFFB66D), // Work orange
+    "#78D0B0" to Color(0xFF78D0B0), // Health green
+    "#AD8AE4" to Color(0xFFAD8AE4), // Leisure purple
+    "#EB5757" to Color(0xFFEB5757), // Red
+    "#F0B84A" to Color(0xFFF0B84A), // Yellow
 )

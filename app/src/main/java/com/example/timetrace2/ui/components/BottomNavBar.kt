@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.timetrace2.ui.theme.NavSelectedBackground
 import com.example.timetrace2.ui.theme.StudyBlue
 
 /** The tabs of the app. An enum gives you a safe, named list instead of "magic" index numbers. */

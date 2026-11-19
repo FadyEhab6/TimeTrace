@@ -29,7 +29,8 @@ internal fun AddEditCategoryDialog(
 ) {
     val isEdit = initialCategory != null
     var name by remember { mutableStateOf(initialCategory?.name ?: "") }
-    var subtitle by remember { mutableStateOf(initialCategory?.subtitle ?: "") }
+    // Prefill from the raw description, not the display subtitle ("No tasks yet")
+    var subtitle by remember { mutableStateOf(initialCategory?.description ?: "") }
     var selectedColorHex by remember {
         mutableStateOf(initialCategory?.colorHex ?: PresetCategoryColors.first().first)
     }

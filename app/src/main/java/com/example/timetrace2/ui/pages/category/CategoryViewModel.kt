@@ -19,9 +19,9 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class CategoryViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = CategoryRepository(
-        AppDatabase.getInstance(application).categoryDao(),
-    )
+    private val db = AppDatabase.getInstance(application)
+    private val repository = CategoryRepository(db.categoryDao(), db.reportDao())
+
     private val userId = MutableStateFlow<Int?>(null)
     val selectedPeriod = MutableStateFlow(CategoryPeriod.Today)
     val selectedDateMillis = MutableStateFlow(DEFAULT_DATE_MILLIS)
