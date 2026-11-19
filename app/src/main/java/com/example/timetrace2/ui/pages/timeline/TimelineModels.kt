@@ -45,13 +45,3 @@ data class TimeEntry(
         val LONG: DateTimeFormatter = DateTimeFormatter.ofPattern("h:mm a")
     }
 }
-
-// TODO: replace with real data (Room / repository) once the data layer is ready
-object DummyTimelineData {
-    fun today() = listOf(
-        TimeEntry(1, "Graduation Project", EntryCategory.STUDY, LocalTime.of(9, 0), LocalTime.of(11, 0)),
-        TimeEntry(2, "Workout", EntryCategory.HEALTH, LocalTime.of(12, 30), LocalTime.of(13, 30)),
-        TimeEntry(3, "Team Meeting", EntryCategory.WORK, LocalTime.of(15, 0), LocalTime.of(16, 30)),
-        TimeEntry(4, "Reading", EntryCategory.LEISURE, LocalTime.of(18, 0), LocalTime.of(19, 0))
-    )
-}
