@@ -4,7 +4,7 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 object PlaceholderData {
-    const val ENABLED = false
+    const val ENABLED = true
 }
 
 class PlaceholderDataSeeder(
