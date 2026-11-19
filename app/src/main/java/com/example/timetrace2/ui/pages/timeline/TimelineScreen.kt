@@ -22,6 +22,7 @@ fun TimelineScreen(viewModel: TimelineViewModel = viewModel()) {
     val entries by viewModel.entries.collectAsStateWithLifecycle()
     val selected by viewModel.selectedEntry.collectAsStateWithLifecycle()
     val dialogMode by viewModel.dialog.collectAsStateWithLifecycle()
+    val categories by viewModel.categories.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     // System back from the details page returns to the list
@@ -38,7 +39,7 @@ fun TimelineScreen(viewModel: TimelineViewModel = viewModel()) {
     } else {
         AndroidViewBinding(TimelineDetailsBinding::inflate) {
             detailTitle.text = entry.title
-            detailCategory.text = entry.category.label
+            detailCategory.text = entry.category.name
             detailTime.text = entry.longRange()
             detailDuration.text = entry.durationLabel()
             detailSource.text = entry.source
@@ -69,6 +70,7 @@ fun TimelineScreen(viewModel: TimelineViewModel = viewModel()) {
                 dialog = TimeEntryDialog.create(
                     context = context,
                     existing = (mode as? DialogMode.Edit)?.entry,
+                    categories = categories,
                     onSave = viewModel::saveEntry,
                     onDismiss = viewModel::closeDialog
                 ).also { it.show() }

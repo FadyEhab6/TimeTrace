@@ -13,8 +13,17 @@ data class CategoryRow(
     val durationSeconds: Long,
 )
 
+data class CategoryOptionRow(
+    val id: Int,
+    val name: String,
+    val color: String,
+)
+
 @Dao
 interface CategoryDao {
+    @Query("SELECT id, name, color FROM category WHERE userId = :userId ORDER BY id")
+    fun observeCategoryOptions(userId: Int): Flow<List<CategoryOptionRow>>
+
     @Query(
         """
         SELECT category.id AS id,
