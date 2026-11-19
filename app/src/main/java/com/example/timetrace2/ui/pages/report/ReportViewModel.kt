@@ -56,7 +56,7 @@ internal class ReportViewModel(application: Application) : AndroidViewModel(appl
     }
 
     companion object {
-        val DEFAULT_REPORT_DATE_MILLIS = java.time.LocalDate.of(2025, 4, 26)
+        val DEFAULT_REPORT_DATE_MILLIS = java.time.LocalDate.now(java.time.ZoneOffset.UTC)
             .atStartOfDay(java.time.ZoneOffset.UTC)
             .toInstant()
             .toEpochMilli()

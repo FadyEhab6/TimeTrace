@@ -79,7 +79,7 @@ internal class CategoryViewModel(application: Application) : AndroidViewModel(ap
     }
 
     companion object {
-        val DEFAULT_DATE_MILLIS = LocalDate.of(2025, 4, 26)
+        val DEFAULT_DATE_MILLIS = LocalDate.now(ZoneOffset.UTC)
             .atStartOfDay(ZoneOffset.UTC)
             .toInstant()
             .toEpochMilli()

@@ -23,6 +23,7 @@ private const val TimerRoute = "timer"
  * Each tab's name ("Today", "Report", ...) is used as its route.
  */
 @Composable
+@kotlinx.coroutines.ExperimentalCoroutinesApi
 fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,

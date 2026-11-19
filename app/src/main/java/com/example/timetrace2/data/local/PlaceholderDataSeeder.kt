@@ -3,10 +3,15 @@ package com.example.timetrace2.data.local
 import java.time.LocalDate
 import java.time.ZoneOffset
 
+object PlaceholderData {
+    const val ENABLED = false
+}
+
 class PlaceholderDataSeeder(
     private val dao: ReportDao,
 ) {
     suspend fun seedIfEmpty() {
+        if (!PlaceholderData.ENABLED) return
         // Seed only once. Checking users (not time entries) matters now that categories can be
         // deleted: a delete removes entries too, and we must not re-seed against missing categories.
         if (dao.countUsers() > 0) return
@@ -29,7 +34,7 @@ class PlaceholderDataSeeder(
         )
         val categoryIds = dao.categoryIds(userId)
 
-        val selectedDate = LocalDate.of(2025, 4, 26)
+        val selectedDate = LocalDate.now(ZoneOffset.UTC)
         val entries = listOf(
             PlaceholderEntry("Study session", categoryIds[0], 135, 9, 0),
             PlaceholderEntry("Work planning", categoryIds[1], 80, 12, 0),
