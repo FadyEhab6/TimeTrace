@@ -21,20 +21,6 @@
             android:scaleType="center"
             android:src="@drawable/ic_arrow_back"
             android:tint="@color/primary_blue" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="3dp"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:contentDescription="More"
-            android:scaleType="center"
-            android:src="@drawable/ic_more_vert"
-            android:tint="@color/text_primary" />
     </LinearLayout>
 
     <LinearLayout
