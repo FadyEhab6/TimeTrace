@@ -17,7 +17,6 @@ import com.example.timetrace2.ui.theme.ScreenBackground
 import com.example.timetrace2.ui.theme.StudyBlue
 import com.example.timetrace2.ui.theme.TextMuted
 import com.example.timetrace2.ui.theme.Typography
-import com.example.timetrace2.ui.pages.timeline.TimerViewModel
 
 // el screen el ra2esiya bta3et el timer
 @Composable
