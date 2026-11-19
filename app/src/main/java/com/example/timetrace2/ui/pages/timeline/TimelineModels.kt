@@ -9,11 +9,19 @@ import java.time.Duration
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-enum class EntryCategory(val label: String, @DrawableRes val iconRes: Int, val color: Color) {
-    STUDY("Study", R.drawable.ic_school, HomeBlue),
-    HEALTH("Health", R.drawable.ic_favorite, SuccessGreen),
-    WORK("Work", R.drawable.ic_work, ShoppingAmber),
-    LEISURE("Leisure", R.drawable.ic_menu_book, SleepPurple);
+data class TimelineCategory(
+    val id: Int,
+    val name: String,
+    val color: Color,
+) {
+    val iconRes: Int
+        get() = when (name.lowercase()) {
+            "study" -> R.drawable.ic_school
+            "health" -> R.drawable.ic_favorite
+            "work" -> R.drawable.ic_work
+            "leisure" -> R.drawable.ic_menu_book
+            else -> R.drawable.ic_menu_book
+        }
 
     val colorInt: Int get() = color.toArgb()
 }
@@ -21,7 +29,7 @@ enum class EntryCategory(val label: String, @DrawableRes val iconRes: Int, val c
 data class TimeEntry(
     val id: Long,
     val title: String,
-    val category: EntryCategory,
+    val category: TimelineCategory,
     val start: LocalTime,
     val end: LocalTime,
     val source: String = "Manual"

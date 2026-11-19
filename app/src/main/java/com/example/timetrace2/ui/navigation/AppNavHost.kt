@@ -4,8 +4,10 @@ import androidx.activity.ComponentActivity
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -37,6 +39,7 @@ fun AppNavHost(
 
     // 3ashan el home w el timeline yeshterakoo f nafs el data
     val timelineViewModel: TimelineViewModel = viewModel(viewModelStoreOwner = context as ComponentActivity)
+    val categories by timelineViewModel.categories.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,
@@ -59,6 +62,7 @@ fun AppNavHost(
                     d = TimeEntryDialog.create(
                         context = context,
                         existing = null,
+                        categories = categories,
                         onSave = { cat, title, start, end ->
                             timelineViewModel.saveEntry(cat, title, start, end)
                             d?.dismiss() // ba3d ma save khalas, asker el dialog

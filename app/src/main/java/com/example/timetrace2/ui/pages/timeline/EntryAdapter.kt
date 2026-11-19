@@ -26,7 +26,7 @@ class EntryAdapter(
         val e = getItem(position)
         with(holder.binding) {
             entryTitle.text = e.title
-            entrySubtitle.text = "${e.category.label}  •  ${e.shortRange()}"
+            entrySubtitle.text = "${e.category.name}  •  ${e.shortRange()}"
             entryDuration.text = e.durationLabel()
             entryIcon.setImageResource(e.category.iconRes)
             entryIcon.setColorFilter(e.category.colorInt)

@@ -21,7 +21,8 @@ object TimeEntryDialog {
     fun create(
         context: Context,
         existing: TimeEntry?,
-        onSave: (EntryCategory, String, LocalTime, LocalTime) -> Unit,
+        categories: List<TimelineCategory>,
+        onSave: (TimelineCategory, String, LocalTime, LocalTime) -> Unit,
         onDismiss: () -> Unit
     ): Dialog {
         val b = DialogTimeEntryBinding.inflate(LayoutInflater.from(context))
@@ -33,7 +34,8 @@ object TimeEntryDialog {
             setLayout((context.resources.displayMetrics.widthPixels * 0.92).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
         }
 
-        var category = existing?.category ?: EntryCategory.STUDY
+        var category = existing?.category
+            ?: categories.firstOrNull()
         var start = existing?.start ?: LocalTime.of(9, 0)
         var end = existing?.end ?: LocalTime.of(11, 0)
 
@@ -41,11 +43,13 @@ object TimeEntryDialog {
         b.saveButton.text = if (existing == null) "Save Entry" else "Save Changes"
         b.titleInput.setText(existing?.title.orEmpty())
 
-        val cats = EntryCategory.values()
+        val cats = categories
         b.categorySpinner.adapter = ArrayAdapter(
-            context, android.R.layout.simple_spinner_dropdown_item, cats.map { it.label }
+            context, android.R.layout.simple_spinner_dropdown_item, cats.map { it.name }
         )
-        b.categorySpinner.setSelection(cats.indexOf(category))
+        b.categorySpinner.setSelection(
+            category?.let { selected -> cats.indexOfFirst { it.id == selected.id } }?.takeIf { it >= 0 } ?: 0
+        )
         b.categorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p: AdapterView<*>?, v: android.view.View?, pos: Int, id: Long) {
                 category = cats[pos]
@@ -76,7 +80,9 @@ object TimeEntryDialog {
                 title.isBlank() -> b.titleInput.error = "Title is required"
                 !end.isAfter(start) ->
                     Toast.makeText(context, "End time must be after start time", Toast.LENGTH_SHORT).show()
-                else -> onSave(category, title, start, end)
+                category == null ->
+                    Toast.makeText(context, "Add at least one category first", Toast.LENGTH_SHORT).show()
+                else -> onSave(category!!, title, start, end)
             }
         }
 

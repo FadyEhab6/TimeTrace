@@ -14,6 +14,7 @@ data class ReportCategoryRow(
 
 data class TimelineEntryRow(
     val id: Int,
+    val categoryId: Int,
     val title: String,
     val categoryName: String,
     val categoryColor: String,
@@ -59,6 +60,7 @@ interface ReportDao {
     @Query(
         """
         SELECT time_entry.id AS id,
+               time_entry.categoryId AS categoryId,
                time_entry.title AS title,
                category.name AS categoryName,
                category.color AS categoryColor,

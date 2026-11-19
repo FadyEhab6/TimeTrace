@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.timetrace2.data.local.AppDatabase
 import com.example.timetrace2.data.local.PlaceholderDataSeeder
 import com.example.timetrace2.data.local.TimeEntryEntity
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,7 +34,24 @@ class TimelineViewModel(application: Application) : AndroidViewModel(application
 
     private val db = AppDatabase.getInstance(application)
     private val dao = db.reportDao()
+    private val categoryDao = db.categoryDao()
     private val userId = MutableStateFlow<Int?>(null)
+
+    val categories: StateFlow<List<TimelineCategory>> = userId.flatMapLatest { currentUserId ->
+        if (currentUserId == null) {
+            flowOf(emptyList())
+        } else {
+            categoryDao.observeCategoryOptions(currentUserId).map { rows ->
+                rows.map { row ->
+                    TimelineCategory(
+                        id = row.id,
+                        name = row.name,
+                        color = parseCategoryColor(row.color),
+                    )
+                }
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     val entries: StateFlow<List<TimeEntry>> = userId.flatMapLatest { currentUserId ->
         if (currentUserId == null) {
@@ -47,9 +65,11 @@ class TimelineViewModel(application: Application) : AndroidViewModel(application
                     TimeEntry(
                         id = row.id.toLong(),
                         title = row.title,
-                        category = EntryCategory.entries.firstOrNull {
-                            it.label.equals(row.categoryName, ignoreCase = true)
-                        } ?: EntryCategory.STUDY,
+                        category = TimelineCategory(
+                            id = row.categoryId,
+                            name = row.categoryName,
+                            color = parseCategoryColor(row.categoryColor),
+                        ),
                         start = Instant.ofEpochMilli(row.startTime).atZone(ZoneOffset.UTC).toLocalTime(),
                         end = Instant.ofEpochMilli(row.endTime).atZone(ZoneOffset.UTC).toLocalTime(),
                         source = row.source,
@@ -74,11 +94,10 @@ class TimelineViewModel(application: Application) : AndroidViewModel(application
     fun openEditDialog(entry: TimeEntry) { _dialog.value = DialogMode.Edit(entry) }
     fun closeDialog() { _dialog.value = DialogMode.Hidden }
 
-    fun saveEntry(category: EntryCategory, title: String, start: LocalTime, end: LocalTime) {
+    fun saveEntry(category: TimelineCategory, title: String, start: LocalTime, end: LocalTime) {
         viewModelScope.launch {
             val currentUserId = userId.value ?: return@launch
-            val categoryId = dao.categoryIdForName(currentUserId, category.label)
-                ?: dao.firstCategoryIdForUser(currentUserId)
+            val categoryId = category.id
             val today = LocalDate.now(ZoneOffset.UTC)
             val startMillis = today.atTime(start).atZone(ZoneOffset.UTC).toInstant().toEpochMilli()
             val endMillis = today.atTime(end).atZone(ZoneOffset.UTC).toInstant().toEpochMilli()
@@ -132,4 +151,11 @@ class TimelineViewModel(application: Application) : AndroidViewModel(application
             userId.value = dao.firstUserId()
         }
     }
+
+    private fun parseCategoryColor(hex: String): Color =
+        try {
+            Color(android.graphics.Color.parseColor(hex))
+        } catch (_: IllegalArgumentException) {
+            Color.Gray
+        }
 }
