@@ -19,8 +19,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,18 +43,21 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
 private const val PREFS_NAME = "timetrace_profile"
 
 @Composable
 fun ProfileSettingsScreen() {
+
     val context = LocalContext.current
 
-    val prefs = remember {
+    val prefs = remember(context) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
+    // Load saved profile information.
     var name by remember {
         mutableStateOf(prefs.getString("name", "") ?: "")
     }
@@ -68,20 +74,32 @@ fun ProfileSettingsScreen() {
         mutableStateOf(false)
     }
 
-    // Launch the system photo picker.
+    // Get the installed app version.
+    val versionName = remember {
+        try {
+            context.packageManager
+                .getPackageInfo(context.packageName, 0)
+                .versionName ?: "1.0"
+        } catch (e: Exception) {
+            "1.0"
+        }
+    }
+
+    // Open the system photo picker.
     val photoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
+
         if (uri != null) {
             try {
                 context.contentResolver.takePersistableUriPermission(
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-            } catch (_: SecurityException) {
-                // Some picker providers grant temporary access only.
-            } catch (_: IllegalArgumentException) {
-                // Persistable access is not supported by every provider.
+            } catch (e: SecurityException) {
+                // Persistable access is not available.
+            } catch (e: IllegalArgumentException) {
+                // Some providers do not support persisted access.
             }
 
             photoUri = uri.toString()
@@ -92,7 +110,7 @@ fun ProfileSettingsScreen() {
         }
     }
 
-    // Load the selected image for display.
+    // Load the selected profile image.
     val avatarBitmap = remember(photoUri) {
         try {
             photoUri?.let { savedUri ->
@@ -102,24 +120,36 @@ fun ProfileSettingsScreen() {
                         BitmapFactory.decodeStream(stream)?.asImageBitmap()
                     }
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
             null
         }
     }
 
+    // Generate initials when no profile photo exists.
+    val initials = name.trim()
+        .split(Regex("\\s+"))
+        .filter { it.isNotBlank() }
+        .take(2)
+        .mapNotNull { it.firstOrNull()?.uppercaseChar() }
+        .joinToString("")
+        .ifBlank { "TT" }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
+
+        // PAGE TITLE.
         Text(
             text = "Profile & Settings",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
 
-        // Profile preview.
+        // PROFILE PREVIEW.
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
@@ -134,6 +164,7 @@ fun ProfileSettingsScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+
                 Box(
                     modifier = Modifier
                         .size(104.dp)
@@ -152,13 +183,7 @@ fun ProfileSettingsScreen() {
                         )
                     } else {
                         Text(
-                            text = name.trim()
-                                .split(Regex("\\s+"))
-                                .filter { it.isNotBlank() }
-                                .take(2)
-                                .mapNotNull { it.firstOrNull()?.uppercaseChar() }
-                                .joinToString("")
-                                .ifBlank { "TT" },
+                            text = initials,
                             style = MaterialTheme.typography.headlineMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
@@ -177,6 +202,20 @@ fun ProfileSettingsScreen() {
                     Text("Change profile photo")
                 }
 
+                if (photoUri != null) {
+                    OutlinedButton(
+                        onClick = {
+                            photoUri = null
+
+                            prefs.edit()
+                                .remove("photo_uri")
+                                .apply()
+                        }
+                    ) {
+                        Text("Remove photo")
+                    }
+                }
+
                 Text(
                     text = name.ifBlank { "Your name" },
                     style = MaterialTheme.typography.titleLarge,
@@ -191,11 +230,12 @@ fun ProfileSettingsScreen() {
             }
         }
 
-        // Editable profile information.
+        // PERSONAL INFORMATION.
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
             Text(
                 text = "Personal Information",
                 style = MaterialTheme.typography.titleLarge,
@@ -221,18 +261,22 @@ fun ProfileSettingsScreen() {
                 },
                 label = { Text("Email address") },
                 singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email
+                ),
                 modifier = Modifier.fillMaxWidth()
             )
 
             Button(
                 onClick = {
-                    prefs.edit()
-                        .putString("name", name.trim())
-                        .putString("email", email.trim())
-                        .apply()
-
                     name = name.trim()
                     email = email.trim()
+
+                    prefs.edit()
+                        .putString("name", name)
+                        .putString("email", email)
+                        .apply()
+
                     savedMessage = true
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -249,25 +293,63 @@ fun ProfileSettingsScreen() {
             }
         }
 
-        // Settings will be implemented in a later commit.
+        // ABOUT TIMETRACE.
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
             Text(
-                text = "Preferences",
+                text = "About TimeTrace",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
 
-            Text(
-                text = "Your app preferences will appear here.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                    Text(
+                        text = "TimeTrace",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Text(
+                        text = "TimeTrace helps you track your daily activities, " +
+                                "manage your time, and understand how you spend it " +
+                                "through simple time analytics.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Version $versionName",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Text(
+                        text = "Personal Time Tracking & Analytics",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
-
