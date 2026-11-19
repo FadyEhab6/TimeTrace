@@ -1,5 +1,9 @@
 package com.example.timetrace2.ui.pages.home
 
+import android.content.Context
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,11 +35,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,6 +69,22 @@ fun HomeScreen(
     val homeViewModel: HomeViewModel = viewModel()
     val databaseData by homeViewModel.homeData.collectAsState()
     val screenData = data ?: databaseData
+
+    val context = LocalContext.current
+    // bageeb el sora elly et7atet fel profile screen
+    val avatarBitmap = remember {
+        val prefs = context.getSharedPreferences("timetrace_profile", Context.MODE_PRIVATE)
+        val photoUri = prefs.getString("photo_uri", null)
+        try {
+            photoUri?.let { uri ->
+                context.contentResolver.openInputStream(Uri.parse(uri))?.use {
+                    BitmapFactory.decodeStream(it)?.asImageBitmap()
+                }
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
 
     Column(
         modifier = modifier
@@ -88,14 +112,24 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold,
                 )
             }
-            Icon(
-                imageVector = Icons.Filled.Person,
-                contentDescription = "Profile",
-                tint = ReportBlue,
-                modifier = Modifier
-                    .size(28.dp)
-                    .clickable(onClick = onProfileClick),
-            )
+            // lw feh sora btzhr hena zay el profile page, mn gher navigation
+            if (avatarBitmap != null) {
+                Image(
+                    bitmap = avatarBitmap,
+                    contentDescription = "Profile",
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = "Profile",
+                    tint = ReportBlue,
+                    modifier = Modifier.size(28.dp),
+                )
+            }
         }
 
         // Today's tracked time + goal
