@@ -74,6 +74,11 @@ fun ProfileSettingsScreen() {
         mutableStateOf(false)
     }
 
+    // state lw el email mesh valid
+    var emailError by remember {
+        mutableStateOf(false)
+    }
+
     // Get the installed app version.
     val versionName = remember {
         try {
@@ -257,9 +262,14 @@ fun ProfileSettingsScreen() {
                 value = email,
                 onValueChange = {
                     email = it
+                    emailError = false
                     savedMessage = false
                 },
                 label = { Text("Email address") },
+                isError = emailError,
+                supportingText = if (emailError) {
+                    { Text("Please enter a valid email address") }
+                } else null,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email
@@ -271,6 +281,13 @@ fun ProfileSettingsScreen() {
                 onClick = {
                     name = name.trim()
                     email = email.trim()
+
+                    // b-check en el email valid
+                    if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                        emailError = true
+                        return@Button
+                    }
+                    emailError = false
 
                     prefs.edit()
                         .putString("name", name)
