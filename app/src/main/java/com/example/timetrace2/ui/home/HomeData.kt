@@ -30,7 +30,6 @@ data class HomeData(
     val entries: List<HomeEntry> = emptyList(),
 )
 
-//Hard coded data for preview
 object SampleHomeData {
     val data = HomeData(
         userName = "Sarah",

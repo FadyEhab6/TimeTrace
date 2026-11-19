@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
+
 @Database(
     entities = [UserEntity::class, CategoryEntity::class, TimeEntryEntity::class],
     version = 1,
@@ -12,6 +13,7 @@ import androidx.room.RoomDatabase
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun reportDao(): ReportDao
+    abstract fun categoryDao(): CategoryDao
 
     companion object {
         @Volatile

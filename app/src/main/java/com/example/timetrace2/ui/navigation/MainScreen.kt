@@ -24,7 +24,7 @@ fun MainScreen() {
     // (including when the user presses the system back button).
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentTab = NavTab.entries.firstOrNull { it.name == backStackEntry?.destination?.route }
-        ?: NavTab.Today
+        ?: NavTab.Home
 
     Scaffold(
         containerColor = ScreenBackground,

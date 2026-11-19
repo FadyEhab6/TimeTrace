@@ -7,29 +7,26 @@ class PlaceholderDataSeeder(
     private val dao: ReportDao,
 ) {
     suspend fun seedIfEmpty() {
-        if (dao.countTimeEntries() >= 12) return
+        // Seed only once. Checking users (not time entries) matters now that categories can be
+        // deleted: a delete removes entries too, and we must not re-seed against missing categories.
+        if (dao.countUsers() > 0) return
 
         val now = System.currentTimeMillis()
-        val userId = if (dao.countUsers() == 0) {
-            val newUserId = dao.insertUser(
-                UserEntity(
-                    name = "Demo User",
-                    email = "demo@timetrace.local",
-                    createdAt = now,
-                ),
-            ).toInt()
-            dao.insertCategories(
-                listOf(
-                    CategoryEntity(userId = newUserId, name = "Study", color = "#4F86F7", isDefault = true, createdAt = now),
-                    CategoryEntity(userId = newUserId, name = "Work", color = "#FFB66D", isDefault = true, createdAt = now),
-                    CategoryEntity(userId = newUserId, name = "Health", color = "#78D0B0", isDefault = true, createdAt = now),
-                    CategoryEntity(userId = newUserId, name = "Leisure", color = "#AD8AE4", isDefault = true, createdAt = now),
-                ),
-            )
-            newUserId
-        } else {
-            dao.firstUserId()
-        }
+        val userId = dao.insertUser(
+            UserEntity(
+                name = "Demo User",
+                email = "demo@timetrace.local",
+                createdAt = now,
+            ),
+        ).toInt()
+        dao.insertCategories(
+            listOf(
+                CategoryEntity(userId = userId, name = "Study", color = "#4F86F7", isDefault = true, createdAt = now),
+                CategoryEntity(userId = userId, name = "Work", color = "#FFB66D", isDefault = true, createdAt = now),
+                CategoryEntity(userId = userId, name = "Health", color = "#78D0B0", isDefault = true, createdAt = now),
+                CategoryEntity(userId = userId, name = "Leisure", color = "#AD8AE4", isDefault = true, createdAt = now),
+            ),
+        )
         val categoryIds = dao.categoryIds(userId)
 
         val selectedDate = LocalDate.of(2025, 4, 26)
