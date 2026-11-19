@@ -7,7 +7,7 @@ import androidx.compose.runtime.*
 import com.example.timetrace2.ui.pages.splash.SplashScreen
 import com.example.timetrace2.ui.pages.timer.TimerScreen
 import androidx.activity.enableEdgeToEdge
-import com.example.timetrace2.ui.report.ReportScreen
+import com.example.timetrace2.ui.pages.report.ReportScreen
 import com.example.timetrace2.ui.theme.TimeTrace2Theme
 import kotlinx.coroutines.delay
 

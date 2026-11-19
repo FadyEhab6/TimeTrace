@@ -12,10 +12,11 @@ import com.example.timetrace2.ui.components.PlaceholderScreen
 import com.example.timetrace2.ui.pages.timer.TimerScreen
 
 // el navigation — kol tab byftah screen tania
-import com.example.timetrace2.ui.report.ReportScreen
+import com.example.timetrace2.ui.pages.report.ReportScreen
 import com.example.timetrace2.ui.pages.profile.ProfileSettingsScreen
 import com.example.timetrace2.ui.pages.home.HomeScreen
-import com.example.timetrace2.ui.pages.report.ReportScreen
+import com.example.timetrace2.ui.pages.profile.ProfileSettingsScreen
+import com.example.timetrace2.ui.pages.timer.TimerScreen
 import com.example.timetrace2.ui.pages.timeline.TimelineScreen
 
 
