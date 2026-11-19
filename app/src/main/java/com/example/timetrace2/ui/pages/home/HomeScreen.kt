@@ -29,6 +29,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,16 +40,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.timetrace2.ui.components.SectionCard
 import com.example.timetrace2.ui.home.HomeData
 import com.example.timetrace2.ui.home.HomeEntry
-import com.example.timetrace2.ui.home.SampleHomeData
 import com.example.timetrace2.ui.theme.*
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    data: HomeData = SampleHomeData.data,
+    data: HomeData? = null,
     onProfileClick: () -> Unit = {},
     onActiveTimerClick: () -> Unit = {},
     onPauseClick: () -> Unit = {},
@@ -56,6 +58,10 @@ fun HomeScreen(
     onViewAllClick: () -> Unit = {},
     onEntryClick: (HomeEntry) -> Unit = {},
 ) {
+    val homeViewModel: HomeViewModel = viewModel()
+    val databaseData by homeViewModel.homeData.collectAsState()
+    val screenData = data ?: databaseData
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -76,7 +82,7 @@ fun HomeScreen(
             Column {
                 Text("Good morning,", color = TextMuted, fontSize = 14.sp)
                 Text(
-                    text = data.userName,
+                    text = screenData.userName,
                     color = ReportNavy,
                     fontSize = Typography.headlineMedium.fontSize,
                     fontWeight = FontWeight.Bold,
@@ -98,13 +104,13 @@ fun HomeScreen(
                 Column {
                     Text("Today's tracked time", color = TextMuted, fontSize = 14.sp)
                     Text(
-                        text = data.trackedTime,
+                        text = screenData.trackedTime,
                         color = ReportNavy,
                         fontSize = Typography.headlineSmall.fontSize,
                         fontWeight = FontWeight.Bold,
                     )
                 }
-                Text("Goal ${data.goal}", color = ReportBlue, fontSize = 14.sp)
+                Text("Goal ${screenData.goal}", color = ReportBlue, fontSize = 14.sp)
             }
             Spacer(Modifier.height(12.dp))
             Box(
@@ -117,7 +123,7 @@ fun HomeScreen(
                 Box(
                     Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(data.progress.coerceIn(0f, 1f))
+                        .fillMaxWidth(screenData.progress.coerceIn(0f, 1f))
                         .clip(RoundedCornerShape(50))
                         .background(StudyBlue),
                 )
@@ -125,7 +131,7 @@ fun HomeScreen(
         }
 
         // Active timer (hidden when nothing is running)
-        data.activeTimer?.let { timer ->
+        screenData.activeTimer?.let { timer ->
             SectionCard(Modifier.clickable(onClick = onActiveTimerClick)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
@@ -178,9 +184,9 @@ fun HomeScreen(
             )
         }
         SectionCard {
-            data.entries.forEachIndexed { index, entry ->
+            screenData.entries.forEachIndexed { index, entry ->
                 EntryRow(entry, onClick = { onEntryClick(entry) })
-                if (index != data.entries.lastIndex) HorizontalDivider(color = DividerGray)
+                if (index != screenData.entries.lastIndex) HorizontalDivider(color = DividerGray)
             }
         }
         Spacer(Modifier.height(8.dp))
