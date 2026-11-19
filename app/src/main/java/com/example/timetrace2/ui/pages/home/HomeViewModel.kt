@@ -40,7 +40,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             ) { name, entries ->
                 val totalSeconds = entries.sumOf { (it.endTime - it.startTime) / 1_000 }
                 HomeData(
-                    userName = name.orEmpty().ifBlank { "User" },
+                    // SharedPreferences awalan (el profile page), law fadya bakhod mn el database
+                    userName = (application.getSharedPreferences("timetrace_profile", 0)
+                        .getString("name", "").orEmpty()
+                        .ifBlank { name.orEmpty() })
+                        .ifBlank { "User" },
                     trackedTime = formatDuration(totalSeconds),
                     goal = "8h",
                     progress = (totalSeconds / 28_800f).coerceIn(0f, 1f),
